@@ -1,0 +1,35 @@
+sudo: required
+language: julia
+
+os:
+    - osx
+    - linux
+
+julia:
+    - 0.7
+    - 1.0
+    - nightly
+
+notifications:
+    email: true
+
+matrix:
+  allow_failures:
+      - julia: nightly
+
+addons:
+  apt:
+    packages:
+    - gfortran
+    - libblas-dev
+    - liblapack-dev
+
+before_install:
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then 
+       brew cask uninstall oclint;
+       brew update; 
+       brew install gcc;
+    fi
+
+after_success:
+  - julia -e 'using Pkg; cd(Pkg.dir("ElasticFDA")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
